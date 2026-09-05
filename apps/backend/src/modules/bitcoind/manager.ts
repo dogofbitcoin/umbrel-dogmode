@@ -5,7 +5,7 @@ import readline from 'node:readline'
 import fse from 'fs-extra'
 
 import type {ExitInfo} from '#types'
-import {AVAILABLE_BITCOIN_CORE_VERSIONS, DEFAULT_BITCOIN_CORE_VERSION} from '#settings'
+import {KNOWN_BITCOIN_CORE_VERSIONS, DEFAULT_BITCOIN_CORE_VERSION} from '#settings'
 
 import {
 	BITCOIN_BIN,
@@ -16,7 +16,7 @@ import {
 	BITCOIN_CORE_CURRENT_SYMLINK,
 } from '../../lib/paths.js'
 
-const IPC_MIN_BITCOIN_CORE_VERSION = 'v30.2' satisfies (typeof AVAILABLE_BITCOIN_CORE_VERSIONS)[number]
+const IPC_MIN_BITCOIN_CORE_VERSION = 'v30.2' satisfies (typeof KNOWN_BITCOIN_CORE_VERSIONS)[number]
 
 // Version helpers
 // TODO: determine whether these would be better as async/await (and therefor entire start() as well)
@@ -40,11 +40,10 @@ function getIpcFromSettings(): boolean {
 }
 
 function supportsIpc(version: string): boolean {
-	const versionIdx = AVAILABLE_BITCOIN_CORE_VERSIONS.indexOf(
-		version as (typeof AVAILABLE_BITCOIN_CORE_VERSIONS)[number],
-	)
-	const minVersionIdx = AVAILABLE_BITCOIN_CORE_VERSIONS.indexOf(IPC_MIN_BITCOIN_CORE_VERSION)
-	// AVAILABLE_BITCOIN_CORE_VERSIONS is newest -> oldest, so lower indexes are newer versions.
+	// DOG Mode fork: the comparison runs against the full known list, not the shipped one.
+	const versionIdx = KNOWN_BITCOIN_CORE_VERSIONS.indexOf(version as (typeof KNOWN_BITCOIN_CORE_VERSIONS)[number])
+	const minVersionIdx = KNOWN_BITCOIN_CORE_VERSIONS.indexOf(IPC_MIN_BITCOIN_CORE_VERSION)
+	// KNOWN_BITCOIN_CORE_VERSIONS is newest -> oldest, so lower indexes are newer versions.
 	return versionIdx !== -1 && minVersionIdx !== -1 && versionIdx <= minVersionIdx
 }
 
@@ -162,7 +161,8 @@ export class BitcoindManager {
 	private getBinaryVersionInfo(binary = this.bin) {
 		try {
 			const firstLine = execFileSync(binary, ['--version']).toString().split('\n')[0]
-			const implementation = firstLine.replace(/(?:daemon|RPC client)?\s*version.*$/i, '').trim()
+			// DOG Mode fork: the daemon prints 'Bitcoin Core' because that is what it is built on; the app names the client it ships.
+			const implementation = 'DOG Mode (' + firstLine.replace(/(?:daemon|RPC client)?\s*version.*$/i, '').trim() + ')'
 			const version = (firstLine.match(/v\d+\.\d+\.\d+/) ?? ['unknown'])[0]
 			return {implementation, version}
 		} catch {

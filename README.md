@@ -1,3 +1,16 @@
+# DOG Mode on Umbrel (the app's interface)
+
+A fork of [getumbrel/umbrel-bitcoin](https://github.com/getumbrel/umbrel-bitcoin) (Umbrel's Bitcoin Node
+app) that ships the DOG Mode client instead of Bitcoin Core: one version, `v31.1`, built from source at
+a pinned commit of [bitcoindogmode/bitcoin](https://github.com/bitcoindogmode/bitcoin) by
+[dogofbitcoin/docker-dogmode](https://github.com/dogofbitcoin/docker-dogmode). Everything else is
+Umbrel's work and stays theirs; this fork changes the Dockerfile's bitcoind stage, the version list, a
+few labels, and the logo. Packaged for umbrelOS by the Dog of Bitcoin Foundation in
+[dogofbitcoin/umbrel-app-store](https://github.com/dogofbitcoin/umbrel-app-store). Not an official
+release of the DOG Mode project.
+
+---
+
 <p align="center">
   <a href="https://apps.umbrel.com/app/bitcoin">
     <img src="https://github.com/user-attachments/assets/b9ff1e96-f899-41e3-8295-3247b88f6f79" alt="Logo">
