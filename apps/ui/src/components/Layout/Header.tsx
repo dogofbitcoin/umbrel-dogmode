@@ -13,11 +13,11 @@ export default function Header({className}: {className?: string}) {
 	const {data: version, isLoading, isError} = useBitcoindVersion()
 
 	// placeholder text to prevent layout shift and fall back on error
-	const placeholder = 'Bitcoin Core fork'
+	const placeholder = 'built on Bitcoin Core'
 
 	// Remove the 'v' prefix from the version string if it exists
 	const cleanedVersion = version?.version?.replace(/^v/i, '')
-	const fullVersionString = `${placeholder} ${cleanedVersion ?? ''}`
+	const fullVersionString = `${cleanedVersion ?? ''}, ${placeholder}`
 
 	return (
 		<header className={cn('flex items-end md:items-center justify-between mb-6 md:mb-8 w-full', className)}>
