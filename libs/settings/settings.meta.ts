@@ -8,11 +8,16 @@
 // IMPORTANT:
 // - Any version added here needs to be added in the Dockerfile
 // - The array of versions must be newest → oldest. We do a simple index comparison to compare versions, so lower index = newer.
-export const AVAILABLE_BITCOIN_CORE_VERSIONS = ['v31.1', 'v31.0', 'v30.3', 'v30.2', 'v30.0', 'v29.4', 'v29.2'] as const
+// DOG Mode fork. KNOWN_BITCOIN_CORE_VERSIONS is upstream's full list, newest to oldest: it keeps every option's
+// introducedIn / removedIn / versionOverrides gate below typed and ordered exactly as upstream wrote it.
+// AVAILABLE_BITCOIN_CORE_VERSIONS is what this image ships: one version, the DOG Mode client built on Bitcoin
+// Core 31.1 (the string stays 'v31.1' so the gates keep matching the Core version it is).
+export const KNOWN_BITCOIN_CORE_VERSIONS = ['v31.1', 'v31.0', 'v30.3', 'v30.2', 'v30.0', 'v29.4', 'v29.2'] as const
+export const AVAILABLE_BITCOIN_CORE_VERSIONS = ['v31.1'] as const
 
 // Default Bitcoin Core version used by bitcoind manager (always the newest version in the array)
 export const DEFAULT_BITCOIN_CORE_VERSION = AVAILABLE_BITCOIN_CORE_VERSIONS[0]
-export type BitcoinCoreVersion = (typeof AVAILABLE_BITCOIN_CORE_VERSIONS)[number]
+export type BitcoinCoreVersion = (typeof KNOWN_BITCOIN_CORE_VERSIONS)[number]
 
 export const LATEST = 'latest' as const
 export const VERSION_CHOICES = [LATEST, ...AVAILABLE_BITCOIN_CORE_VERSIONS] as const
@@ -598,7 +603,7 @@ export const settingsMetadata = {
 			...AVAILABLE_BITCOIN_CORE_VERSIONS.map((version) => ({
 				value: version,
 				label: version,
-				selectable: version !== 'v30.0',
+				selectable: (version as BitcoinCoreVersion) !== 'v30.0',
 			})),
 		],
 		default: LATEST,
@@ -632,13 +637,13 @@ export function resolveVersion(desired: SelectedVersion): BitcoinCoreVersion {
 // Creates the version‑specific metadata for a given Bitcoin Core version:
 export function settingsMetadataForVersion(version: BitcoinCoreVersion) {
 	const metadata: Record<string, Option> = {}
-	const versionIdx = AVAILABLE_BITCOIN_CORE_VERSIONS.indexOf(version)
+	const versionIdx = KNOWN_BITCOIN_CORE_VERSIONS.indexOf(version)
 
 	// Loop through each settingsMetadata entry and build the versioned metadata
 	for (const [key, value] of Object.entries(settingsMetadata) as Array<[string, VersionedOption]>) {
 		// Skip the setting entirely if it is not in the specified Bitcoin Core version
-		if (value.introducedIn && versionIdx > AVAILABLE_BITCOIN_CORE_VERSIONS.indexOf(value.introducedIn)) continue
-		if (value.removedIn && versionIdx <= AVAILABLE_BITCOIN_CORE_VERSIONS.indexOf(value.removedIn)) continue
+		if (value.introducedIn && versionIdx > KNOWN_BITCOIN_CORE_VERSIONS.indexOf(value.introducedIn)) continue
+		if (value.removedIn && versionIdx <= KNOWN_BITCOIN_CORE_VERSIONS.indexOf(value.removedIn)) continue
 
 		// Merge the versioned metadata with the version overrides
 		const merged = {

@@ -4,7 +4,7 @@ import copy from 'copy-to-clipboard'
 import {Copy, TriangleAlert, LockKeyhole, X as XIcon} from 'lucide-react'
 import {motion, AnimatePresence} from 'framer-motion'
 
-import UmbrelLogo from '@/assets/umbrel-logo.svg?react'
+import UmbrelLogo from '@/assets/logo.svg?react'
 
 import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert'
 import {
