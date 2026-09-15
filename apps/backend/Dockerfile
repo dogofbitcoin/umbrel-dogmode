@@ -15,8 +15,9 @@
 ###########################################
 # https://github.com/getumbrel/docker-bitcoind
 # The DOG Mode client, built from source at the pinned commit by github.com/dogofbitcoin/docker-dogmode.
-# Built 2026-09-05 by github.com/dogofbitcoin/docker-dogmode run 33960451922 (amd64 and arm64, one manifest list).
-FROM ghcr.io/dogofbitcoin/bitcoin:31.1-dogmode-7503240@sha256:d2a6fb8d52457bcf1b5caa30be4f0b4a7ed24ac0880090cd4086a5fdf7355e21 AS bitcoind_31_1
+# Built 2026-09-15 by github.com/dogofbitcoin/docker-dogmode run 34940122474 (amd64 and arm64, one manifest list):
+# the same programs as the 2026-09-05 image (their sums are in that repository's README), with their license files.
+FROM ghcr.io/dogofbitcoin/bitcoin:31.1-dogmode-7503240-r2@sha256:15762c6513e53bd6711fc8d067687bb45086125ca5b15eaa51d9d5f911c67d5a AS bitcoind_31_1
 
 ##########################################################
 # Dependencies layer — install every workspace deps
@@ -122,6 +123,12 @@ COPY --from=bitcoind_31_1 /bin/bitcoind     /opt/bitcoind/v31.1/bitcoind
 COPY --from=bitcoind_31_1 /bin/bitcoin-cli  /opt/bitcoind/v31.1/bitcoin-cli
 COPY --from=bitcoind_31_1 /bin/bitcoin      /opt/bitcoind/v31.1/bitcoin
 COPY --from=bitcoind_31_1 /bin/bitcoin-node /opt/bitcoind/v31.1/bitcoin-node
+
+# The licenses travel with the programs: the client's, as the docker-dogmode image ships them (Bitcoin Core's
+# COPYING, the libraries built into it, the sources they came from), and this app's own (Umbrel's PolyForm
+# Noncommercial License 1.0.0, whose terms go with every copy).
+COPY --from=bitcoind_31_1 /usr/share/doc/dogmode /usr/share/doc/dogmode
+COPY LICENSE.md /usr/share/doc/umbrel-dogmode/LICENSE.md
 
 # Give 1000:1000 write permissions to /opt/bitcoind itself so we can flip
 # the current-version symlink while the container runs as 1000:1000.
